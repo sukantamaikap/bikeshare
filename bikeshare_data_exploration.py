@@ -19,13 +19,13 @@ MONTHS = {'JAN': '1',
           'NOV': '11',
           'DEC': '12'}
 
-DAY = {'MON': 'Monday',
-       'TUE': 'Tuesday',
-       'WED': 'Wednesday',
-       'THU': 'Thursday',
-       'FRI': 'Friday',
-       'SAT': 'Saturday',
-       'SUN': 'Sunday'}
+DAY = {'MON': 0,
+       'TUE': 1,
+       'WED': 2,
+       'THU': 3,
+       'FRI': 4,
+       'SAT': 5,
+       'SUN': 6}
 
 
 def get_filters():
@@ -62,9 +62,10 @@ def get_filters():
         # get user input for month (all, january, february, ... , june)
         if not month_found:
             month = input("Enter month you want to explore. Choose one of : "
-                          "JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC :")
+                          "JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC. If you want to see the data "
+                          "for the whole year, press Enter :")
             month = month.upper()
-            if month not in MONTHS:
+            if not month or month not in MONTHS:
                 print("Invalid month entered!!! Enter a valid month!!!!")
                 continue
             else:
@@ -74,9 +75,10 @@ def get_filters():
 
         # get user input for day of week (all, monday, tuesday, ... sunday)
         if not day_found:
-            day = input("Enter day you want to explore. Choose one of : MON, TUE, WED, THU, FRI, SAT, SUN :")
+            day = input("Enter day you want to explore. Choose one of : MON, TUE, WED, THU, FRI, SAT, SUN. If you "
+                        "want to see data for all days, press Enter :")
             day = day.upper()
-            if day not in DAY:
+            if not day or day not in DAY:
                 print("Invalid day entered!!! Enter a valid day!!!!")
                 continue
             else:
@@ -107,11 +109,11 @@ def load_data(city, month, day):
     # extract end month from the Start time column to create Start Month column
     df['End Month'] = pd.DatetimeIndex(df['End Time']).month
 
-    #extract start day from the Start time column to create Start Day column
-    df['Start Day'] = pd.DatetimeIndex(df['Start Time']).day
+    # extract start day from the Start time column to create Start Day column
+    df['Start Day'] = pd.to_datetime(df['Start Time'], format='%Y-%m-%d %H:%M:%S').dt.dayofweek
 
     # extract start day from the Start time column to create Start Day column
-    df['End Day'] = pd.DatetimeIndex(df['End Time']).day
+    df['End Day'] = pd.to_datetime(df['End Time'], format='%Y-%m-%d %H:%M:%S').dt.dayofweek
 
     # extract start hour from the Start Time column to create an Start Hour column
     df['Start Hour'] = pd.DatetimeIndex(df['Start Time']).hour
@@ -119,11 +121,13 @@ def load_data(city, month, day):
     # extract end hour from the End Time column to create an End Hour column
     df['End Hour'] = pd.DatetimeIndex(df['End Time']).hour
 
-    #filter month
+    # filter on month, if month is specified
     if month != '':
+        df = df[df['Start Month'] == MONTHS.get(month)]
 
-    # filter day
+    # filter on day, if day is specified
     if day != '':
+        df = df[df['Start Day'] == DAY.get(day)]
 
     return df
 
