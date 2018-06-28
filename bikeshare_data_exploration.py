@@ -6,7 +6,7 @@ CITY_DATA = {'chicago': 'chicago.csv',
              'new york city': 'new_york_city.csv',
              'washington': 'washington.csv'}
 
-MONTHS = {'JAN': '1',
+MONTHS_TO_INDEX = {'JAN': '1',
           "FEB": "2",
           'MAR': '3',
           'APR': '4',
@@ -17,16 +17,38 @@ MONTHS = {'JAN': '1',
           'SEP': '9',
           'OCT': '10',
           'NOV': '11',
-          'DEC': '12'}
+          'DEC': '12',
+          'ALL': 'ALL'}
 
-DAY = {'MON': 0,
+INDEX_TO_MONTH = {1: 'January',
+                  2: 'February',
+                  3: 'March',
+                  4: 'April',
+                  5: 'May',
+                  6: 'June',
+                  7: 'July',
+                  8: 'August',
+                  9: 'September',
+                  10: 'October',
+                  11: 'November',
+                  12: 'December'}
+
+DAY_T0_INDEX = {'MON': 0,
        'TUE': 1,
        'WED': 2,
        'THU': 3,
        'FRI': 4,
        'SAT': 5,
-       'SUN': 6}
+       'SUN': 6,
+       'ALL': "ALL"}
 
+INDEX_TO_DAY = {0: 'Monday',
+                1: 'Tuesday',
+                2: 'Wednesday',
+                3: 'Thursday',
+                4: 'Friday',
+                5: 'Saturday',
+                6: 'Sunday'}
 
 def get_filters():
     """
@@ -43,7 +65,6 @@ def get_filters():
     city_found, month_found, day_found = False, False, False
 
     while True:
-        print('\n\n')
 
         # get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
         if not city_found:
@@ -57,33 +78,29 @@ def get_filters():
             else:
                 city_found = True
 
-        print('\n\n')
+        print('\n')
 
         # get user input for month (all, january, february, ... , june)
         if not month_found:
             month = input("Enter month you want to explore. Choose one of : "
-                          "JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC. If you want to see the data "
-                          "for the whole year, press Enter :")
+                          "JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC, ALL. ALL denotes data for all months : ")
             month = month.upper()
-            if not month or month not in MONTHS:
+            if month not in MONTHS_TO_INDEX:
                 print("Invalid month entered!!! Enter a valid month!!!!")
                 continue
             else:
                 month_found = True
 
-        print('\n\n')
+        print('\n')
 
         # get user input for day of week (all, monday, tuesday, ... sunday)
-        if not day_found:
-            day = input("Enter day you want to explore. Choose one of : MON, TUE, WED, THU, FRI, SAT, SUN. If you "
-                        "want to see data for all days, press Enter :")
-            day = day.upper()
-            if not day or day not in DAY:
-                print("Invalid day entered!!! Enter a valid day!!!!")
-                continue
-            else:
-                day_found = True
-                break
+        day = input("Enter day you want to explore. Choose one of : MON, TUE, WED, THU, FRI, SAT, SUN, ALL. ALL denotes data for all days :")
+        day = day.upper()
+        if day not in DAY_T0_INDEX:
+            print("Invalid day entered!!! Enter a valid day!!!!")
+            continue
+        else:
+            break
 
     print('-' * 40)
     print('\n')
@@ -101,6 +118,9 @@ def load_data(city, month, day):
     Returns:
         df - Pandas DataFrame containing city data filtered by month and day
     """
+    start_time = time.time()
+    print("Begin data cooking !!!")
+
     df = pd.read_csv(CITY_DATA.get(city))
 
     # extract start month from the Start time column to create Start Month column
@@ -122,27 +142,41 @@ def load_data(city, month, day):
     df['End Hour'] = pd.DatetimeIndex(df['End Time']).hour
 
     # filter on month, if month is specified
-    if month != '':
-        df = df[df['Start Month'] == MONTHS.get(month)]
+    if month != MONTHS_TO_INDEX.get('ALL'):
+        df = df[df['Start Month'] == int(MONTHS_TO_INDEX.get(month))]
 
     # filter on day, if day is specified
-    if day != '':
-        df = df[df['Start Day'] == DAY.get(day)]
+    if day != DAY_T0_INDEX.get('ALL'):
+        df = df[df['Start Day'] == int(DAY_T0_INDEX.get(day))]
 
+    print("Data cooking completed !!!")
+    print("\nThis took %s seconds." % (time.time() - start_time))
     return df
 
 
-def time_stats(df):
+def time_stats(df, month, day):
     """Displays statistics on the most frequent times of travel."""
 
     print('\nCalculating The Most Frequent Times of Travel...\n')
     start_time = time.time()
 
     # display the most common month
+    if month == MONTHS_TO_INDEX.get('ALL'):
+        popular_month = df['Start Month'].dropna().mode()[0]
+        print('Most popular month for renting is : {}'.format(INDEX_TO_MONTH.get(popular_month)))
+    else:
+        print('As you have chosen month : {} as filter, most popular month for renting won\'t be calculated'.format(month))
 
     # display the most common day of week
+    if day == DAY_T0_INDEX.get('ALL'):
+        popular_day = df['Start Day'].dropna().mode()[0]
+        print('Most popular day for renting is : {}'.format(INDEX_TO_DAY.get(popular_day)))
+    else:
+        print('As you have chosen "{}day" as filter, most popular day for renting won\'t be calculated'.format(day.title()))
 
     # display the most common start hour
+    popular_start_hour = df['Start Hour'].mode()[0]
+    print('Most popular renting start hour is : {}:00 hrs'.format(popular_start_hour))
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-' * 40)
@@ -201,7 +235,7 @@ def main():
 
         df = load_data(city, month, day)
 
-        # time_stats(df)
+        time_stats(df, month, day)
         # station_stats(df)
         # trip_duration_stats(df)
         # user_stats(df)
