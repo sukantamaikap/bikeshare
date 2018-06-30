@@ -162,21 +162,33 @@ def time_stats(df, month, day):
 
     # display the most common month
     if month == MONTHS_TO_INDEX.get('ALL'):
-        popular_month = df['Start Month'].dropna().mode()[0]
-        print('Most popular month for renting is : {}'.format(INDEX_TO_MONTH.get(popular_month)))
+        popular_month = df['Start Month'].dropna()
+        if popular_month.empty:
+            print("No popular month found for the filter specified!! Please adjust your filter!!")
+        else:
+            popular_month = popular_month.mode()[0]
+            print('Most popular month for renting is : {}'.format(INDEX_TO_MONTH.get(popular_month)))
     else:
         print('As you have chosen month : {} as filter, most popular month for renting won\'t be calculated'.format(month))
 
     # display the most common day of week
     if day == DAY_T0_INDEX.get('ALL'):
-        popular_day = df['Start Day'].dropna().mode()[0]
-        print('Most popular day for renting is : {}'.format(INDEX_TO_DAY.get(popular_day)))
+        popular_day = df['Start Day'].dropna()  #.mode()[0]
+        if popular_day.empty:
+            print('No popular day found for the filters specified!! Please adjust your filter!!!')
+        else:
+            popular_day = popular_day.mode()[0]
+            print('Most popular day for renting is : {}'.format(INDEX_TO_DAY.get(popular_day)))
     else:
         print('As you have chosen "{}day" as filter, most popular day for renting won\'t be calculated'.format(day.title()))
 
     # display the most common start hour
-    popular_start_hour = df['Start Hour'].mode()[0]
-    print('Most popular renting start hour is : {}:00 hrs'.format(popular_start_hour))
+    popular_start_hour = df['Start Hour'].dropna()
+    if popular_start_hour.empty:
+        print('No popular start hour found for the filter specified!! Please adjust your filter !!!')
+    else:
+        popular_start_hour = popular_start_hour.mode()[0]
+        print('Most popular renting start hour is : {}:00 hrs'.format(popular_start_hour))
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-' * 40)
