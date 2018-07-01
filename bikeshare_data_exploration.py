@@ -221,7 +221,12 @@ def station_stats(df):
     if most_frequent_start_and_end_station.empty:
         print('No data found for the filter specified!! Kindly adjust your filter')
     else:
-        most_frequent_start_and_end_station = most_frequent_start_and_end_station.describe()
+        most_frequent_start_and_end_station = most_frequent_start_and_end_station.groupby(['Start Station', 'End Station']).size().sort_values(ascending=False)
+        trip_count = most_frequent_start_and_end_station.iloc[0]
+        stations = most_frequent_start_and_end_station[most_frequent_start_and_end_station == trip_count].index[0]
+
+        start_station, end_station = stations
+        print('Most frequent start station : {} and end station {} which was part of trips {} times'.format(start_station, end_station, trip_count))
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-' * 40)
