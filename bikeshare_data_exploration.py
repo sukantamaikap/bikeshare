@@ -126,20 +126,11 @@ def load_data(city, month, day):
     # extract start month from the Start time column to create Start Month column
     df['Start Month'] = pd.DatetimeIndex(df['Start Time']).month
 
-    # extract end month from the Start time column to create Start Month column
-    df['End Month'] = pd.DatetimeIndex(df['End Time']).month
-
     # extract start day from the Start time column to create Start Day column
     df['Start Day'] = pd.to_datetime(df['Start Time'], format='%Y-%m-%d %H:%M:%S').dt.dayofweek
 
-    # extract start day from the Start time column to create Start Day column
-    df['End Day'] = pd.to_datetime(df['End Time'], format='%Y-%m-%d %H:%M:%S').dt.dayofweek
-
     # extract start hour from the Start Time column to create an Start Hour column
     df['Start Hour'] = pd.DatetimeIndex(df['Start Time']).hour
-
-    # extract end hour from the End Time column to create an End Hour column
-    df['End Hour'] = pd.DatetimeIndex(df['End Time']).hour
 
     # filter on month, if month is specified
     if month != MONTHS_TO_INDEX.get('ALL'):
