@@ -290,6 +290,20 @@ def user_stats(df):
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-' * 40)
 
+def show_raw_data(df):
+    '''method to print the selected data frame, 5 at a time '''
+    choice = input("Would you like to see raw data? [Y/n] : ")
+    choice = choice.upper()
+
+    count = 0
+    if choice == 'Y':
+        for row in df.iterrows():
+            print(row)
+            count += 1
+            if count != 0 and count % 5 == 0:
+                choice = input("Would you like to see raw data? [Y/n] : ")
+                if choice.upper() != 'Y':
+                    break
 
 def main():
     while True:
@@ -306,6 +320,8 @@ def main():
         station_stats(df)
         trip_duration_stats(df)
         user_stats(df)
+
+        show_raw_data(df)
 
         restart = input('\nWould you like to restart? Enter yes or no.\n')
         if restart.lower() != 'yes':
